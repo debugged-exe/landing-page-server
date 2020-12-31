@@ -2,9 +2,14 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-
+var nodemailer = require('nodemailer');
 app.use(express.json())
 app.use(cors())
+
+app.use((req, res, next) => {
+	res.locals.path = req.path;
+	next();
+  });
 
 app.get('/', (req,res) => {
 	res.json("This is working.");
@@ -27,6 +32,14 @@ mongoose.connect("mongodb+srv://Rushabh_Bora:RushabhBora@cluster0.qmrlc.mongodb.
 
 var Model = mongoose.model('Model', contactEntry);
 
+var transporter = nodemailer.createTransport({
+	service: 'gmail',
+	auth: {
+	  user: 'contact.sharvafoundation@gmail.com',
+	  pass: 'tanmay@123'
+	}
+  });
+
 app.post('/contact', (req,res) => {
 	const query = req.body;
 	const {name, email, message} = query;
@@ -45,7 +58,7 @@ app.post('/contact', (req,res) => {
 			}
 			else{
 			  var mailOptions = {
-				from: 'contact.boramobiles@gmail.com',
+				from: 'contact.sharvafoundation@gmail.com',
 				to: 'tanmayjagtap27@gmail.com',
 				subject: 'New Contact Entry',
 				text: 'Name: '+req.body.name+'\nEmail: '+req.body.email+'\nMessage: '+req.body.message
@@ -62,7 +75,6 @@ app.post('/contact', (req,res) => {
 			  res.status(200).json("Success");
 			}
 		  })
-		res.status(200).json("Success")
 	}
 	else
 	{
